@@ -1,0 +1,13 @@
+{
+  "id": "community.hqstreams.aggregator",
+  "version": "1.0.0",
+  "name": "HQ Streams Aggregator",
+  "description": "Aggregates high-quality (1080p+) streaming links from multiple providers including VidSrc, GoDrivePlayer, AutoEmbed, and others",
+  "logo": "https://i.imgur.com/3XwJQ5l.png",
+  "background": "https://i.imgur.com/8fGhJ9a.png",
+  "type": "stream",
+  "catalogs": [],
+  "resources": ["stream"],
+  "types": ["movie", "series"],
+  "idPrefixes": ["tt", "tmdb:"] 
+}
