@@ -1,12 +1,7 @@
 {
-  "name": "stremio-hq-addon",
-  "version": "1.0.0",
-  "description": "HQ Streams Aggregator for Stremio",
-  "main": "api/streams.js",
-  "scripts": {
-    "start": "echo 'This is a serverless app'"
-  },
   "dependencies": {
-    "axios": "^0.21.4"
+    "axios": "^1.13.2",
+    "cors": "^2.8.5",
+    "express": "^5.2.1"
   }
 }
