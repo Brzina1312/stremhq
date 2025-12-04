@@ -9,9 +9,5 @@
   "catalogs": [],
   "resources": ["stream"],
   "types": ["movie", "series"],
-  "idPrefixes": ["tt", "tmdb:"],
-  "behaviorHints": {
-    "configurable": true,
-    "configurationRequired": false
-  }
+  "idPrefixes": ["tt", "tmdb:"]
 }

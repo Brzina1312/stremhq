@@ -16,53 +16,27 @@ const providers = {
     movieUrl: 'https://vidsrc.to/embed/movie',
     seriesUrl: 'https://vidsrc.to/embed/tv',
     quality: ['1080p', '4K'],
-    features: ['subtitles', 'auto_update'],
-    urlFormat: 'embed'
+    features: ['subtitles', 'auto_update']
   },
   godrive: {
     movieUrl: 'https://godriveplayer.com/player.php',
     seriesUrl: 'https://godriveplayer.com/player.php',
     quality: ['1080p'],
-    features: ['fast_servers', 'responsive'],
-    urlFormat: 'player'
+    features: ['fast_servers', 'responsive']
   },
   autoembed: {
     movieUrl: 'https://autoembed.cc/embed/movie',
     seriesUrl: 'https://autoembed.cc/embed/tv',
     quality: ['1080p', '4K'],
-    features: ['free_api'],
-    urlFormat: 'embed'
+    features: ['free_api']
   },
   tmdbembed: {
     movieUrl: 'https://api.tmdbembed.org/embed/movie',
     seriesUrl: 'https://api.tmdbembed.org/embed/tv',
     quality: ['1080p', '4K'],
-    features: ['multi_source'],
-    urlFormat: 'embed'
+    features: ['multi_source']
   }
 };
-
-// Helper function to enrich stream info
-function enrichStreamInfo(stream, providerName, sourceUrl) {
-  return {
-    name: `${providerName} - ${stream.quality || 'HD'}`,
-    title: stream.title || `${providerName} Stream`,
-    url: stream.url || sourceUrl,
-    description: `Source: ${providerName}\nQuality: ${stream.quality || 'HD'}\nFeatures: ${stream.features?.join(', ') || 'Standard'}`,
-    behaviorHints: {
-      notWebReady: false,
-      bingeGroup: providerName,
-      proxyHeaders: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
-      }
-    },
-    externalUrl: stream.url || sourceUrl,
-    subtitles: stream.subtitles || [],
-    headers: {
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
-    }
-  };
-}
 
 // Routes
 app.get('/manifest.json', (req, res) => {
@@ -75,23 +49,6 @@ app.get('/health', (req, res) => {
     timestamp: new Date().toISOString(),
     providers: ['vidsrc', 'godrive', 'autoembed', 'tmdbembed']
   });
-});
-
-app.get('/test', (req, res) => {
-  res.json({
-    message: 'Test route',
-    timestamp: new Date().toISOString(),
-    providers: Object.keys(providers)
-  });
-});
-
-// Add logging middleware
-app.use((req, res, next) => {
-  console.log(`${req.method} ${req.url}`);
-  console.log('Headers:', req.headers);
-  console.log('Query:', req.query);
-  console.log('Params:', req.params);
-  next();
 });
 
 // Update the route to match what Stremio is sending
@@ -132,18 +89,13 @@ app.get('/stream/:type/:id.json', async (req, res) => {
         
         streams.push({
           name: 'VidSrc',
-          title: `VidSrc - ${providers.vidsrc.quality[0]}`,
+          title: `VidSrc - 1080p`,
           url: vidsrcUrl,
-          description: `Source: VidSrc\nQuality: ${providers.vidsrc.quality[0]}\nFeatures: ${providers.vidsrc.features.join(', ')}`,
+          description: `Source: VidSrc\nQuality: 1080p\nFeatures: subtitles, auto_update`,
           behaviorHints: {
             notWebReady: false,
-            bingeGroup: 'VidSrc',
-            proxyHeaders: {
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
-            }
-          },
-          externalUrl: vidsrcUrl,
-          subtitles: providers.vidsrc.features.includes('subtitles') ? [] : null
+            bingeGroup: 'VidSrc'
+          }
         });
       } catch (error) {
         console.error('VidSrc error:', error.message);
@@ -155,18 +107,13 @@ app.get('/stream/:type/:id.json', async (req, res) => {
         
         streams.push({
           name: 'GoDrivePlayer',
-          title: `GoDrivePlayer - ${providers.godrive.quality[0]}`,
+          title: `GoDrivePlayer - 1080p`,
           url: godriveUrl,
-          description: `Source: GoDrivePlayer\nQuality: ${providers.godrive.quality[0]}\nFeatures: ${providers.godrive.features.join(', ')}`,
+          description: `Source: GoDrivePlayer\nQuality: 1080p\nFeatures: fast_servers, responsive`,
           behaviorHints: {
             notWebReady: false,
-            bingeGroup: 'GoDrivePlayer',
-            proxyHeaders: {
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
-            }
-          },
-          externalUrl: godriveUrl,
-          subtitles: providers.godrive.features.includes('subtitles') ? [] : null
+            bingeGroup: 'GoDrivePlayer'
+          }
         });
       } catch (error) {
         console.error('GoDrivePlayer error:', error.message);
@@ -178,18 +125,13 @@ app.get('/stream/:type/:id.json', async (req, res) => {
         
         streams.push({
           name: 'AutoEmbed',
-          title: `AutoEmbed - ${providers.autoembed.quality[0]}`,
+          title: `AutoEmbed - 1080p`,
           url: autoembedUrl,
-          description: `Source: AutoEmbed\nQuality: ${providers.autoembed.quality[0]}\nFeatures: ${providers.autoembed.features.join(', ')}`,
+          description: `Source: AutoEmbed\nQuality: 1080p\nFeatures: free_api`,
           behaviorHints: {
             notWebReady: false,
-            bingeGroup: 'AutoEmbed',
-            proxyHeaders: {
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
-            }
-          },
-          externalUrl: autoembedUrl,
-          subtitles: providers.autoembed.features.includes('subtitles') ? [] : null
+            bingeGroup: 'AutoEmbed'
+          }
         });
       } catch (error) {
         console.error('AutoEmbed error:', error.message);
@@ -201,18 +143,13 @@ app.get('/stream/:type/:id.json', async (req, res) => {
         
         streams.push({
           name: 'TMDB-Embed',
-          title: `TMDB-Embed - ${providers.tmdbembed.quality[1]}`, // Use 4K quality
+          title: `TMDB-Embed - 4K`,
           url: tmdbembedUrl,
-          description: `Source: TMDB-Embed\nQuality: ${providers.tmdbembed.quality[1]}\nFeatures: ${providers.tmdbembed.features.join(', ')}`,
+          description: `Source: TMDB-Embed\nQuality: 4K\nFeatures: multi_source`,
           behaviorHints: {
             notWebReady: false,
-            bingeGroup: 'TMDB-Embed',
-            proxyHeaders: {
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
-            }
-          },
-          externalUrl: tmdbembedUrl,
-          subtitles: providers.tmdbembed.features.includes('subtitles') ? [] : null
+            bingeGroup: 'TMDB-Embed'
+          }
         });
       } catch (error) {
         console.error('TMDB-Embed error:', error.message);
@@ -229,18 +166,13 @@ app.get('/stream/:type/:id.json', async (req, res) => {
         
         streams.push({
           name: 'VidSrc',
-          title: `VidSrc - ${providers.vidsrc.quality[0]}`,
+          title: `VidSrc - 1080p`,
           url: vidsrcUrl,
-          description: `Source: VidSrc\nQuality: ${providers.vidsrc.quality[0]}\nFeatures: ${providers.vidsrc.features.join(', ')}`,
+          description: `Source: VidSrc\nQuality: 1080p\nFeatures: subtitles, auto_update`,
           behaviorHints: {
             notWebReady: false,
-            bingeGroup: 'VidSrc',
-            proxyHeaders: {
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
-            }
-          },
-          externalUrl: vidsrcUrl,
-          subtitles: providers.vidsrc.features.includes('subtitles') ? [] : null
+            bingeGroup: 'VidSrc'
+          }
         });
       } catch (error) {
         console.error('VidSrc error:', error.message);
@@ -254,18 +186,13 @@ app.get('/stream/:type/:id.json', async (req, res) => {
         
         streams.push({
           name: 'GoDrivePlayer',
-          title: `GoDrivePlayer - ${providers.godrive.quality[0]}`,
+          title: `GoDrivePlayer - 1080p`,
           url: godriveUrl,
-          description: `Source: GoDrivePlayer\nQuality: ${providers.godrive.quality[0]}\nFeatures: ${providers.godrive.features.join(', ')}`,
+          description: `Source: GoDrivePlayer\nQuality: 1080p\nFeatures: fast_servers, responsive`,
           behaviorHints: {
             notWebReady: false,
-            bingeGroup: 'GoDrivePlayer',
-            proxyHeaders: {
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
-            }
-          },
-          externalUrl: godriveUrl,
-          subtitles: providers.godrive.features.includes('subtitles') ? [] : null
+            bingeGroup: 'GoDrivePlayer'
+          }
         });
       } catch (error) {
         console.error('GoDrivePlayer error:', error.message);
@@ -279,18 +206,13 @@ app.get('/stream/:type/:id.json', async (req, res) => {
         
         streams.push({
           name: 'AutoEmbed',
-          title: `AutoEmbed - ${providers.autoembed.quality[0]}`,
+          title: `AutoEmbed - 1080p`,
           url: autoembedUrl,
-          description: `Source: AutoEmbed\nQuality: ${providers.autoembed.quality[0]}\nFeatures: ${providers.autoembed.features.join(', ')}`,
+          description: `Source: AutoEmbed\nQuality: 1080p\nFeatures: free_api`,
           behaviorHints: {
             notWebReady: false,
-            bingeGroup: 'AutoEmbed',
-            proxyHeaders: {
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
-            }
-          },
-          externalUrl: autoembedUrl,
-          subtitles: providers.autoembed.features.includes('subtitles') ? [] : null
+            bingeGroup: 'AutoEmbed'
+          }
         });
       } catch (error) {
         console.error('AutoEmbed error:', error.message);
@@ -304,32 +226,21 @@ app.get('/stream/:type/:id.json', async (req, res) => {
         
         streams.push({
           name: 'TMDB-Embed',
-          title: `TMDB-Embed - ${providers.tmdbembed.quality[1]}`, // Use 4K quality
+          title: `TMDB-Embed - 4K`,
           url: tmdbembedUrl,
-          description: `Source: TMDB-Embed\nQuality: ${providers.tmdbembed.quality[1]}\nFeatures: ${providers.tmdbembed.features.join(', ')}`,
+          description: `Source: TMDB-Embed\nQuality: 4K\nFeatures: multi_source`,
           behaviorHints: {
             notWebReady: false,
-            bingeGroup: 'TMDB-Embed',
-            proxyHeaders: {
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
-            }
-          },
-          externalUrl: tmdbembedUrl,
-          subtitles: providers.tmdbembed.features.includes('subtitles') ? [] : null
+            bingeGroup: 'TMDB-Embed'
+          }
         });
       } catch (error) {
         console.error('TMDB-Embed error:', error.message);
       }
     }
     
-    // Filter only high-quality streams
-    const hqStreams = streams.filter(stream => 
-      stream.title.includes('1080p') || 
-      stream.title.includes('4K')
-    );
-    
-    console.log(`Returning ${hqStreams.length} high-quality streams`);
-    res.status(200).json({ streams: hqStreams });
+    console.log(`Returning ${streams.length} streams`);
+    res.status(200).json({ streams });
     
   } catch (error) {
     console.error('General error:', error);
