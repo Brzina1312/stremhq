@@ -1,44 +1,18 @@
 const { serveHTTP } = require('stremio-addon-sdk');
 const axios = require('axios');
 
-// Provider configurations
-const providers = {
-  vidsrc: {
-    movieUrl: 'https://vidsrc.to/embed/movie',
-    seriesUrl: 'https://vidsrc.to/embed/tv',
-    quality: ['1080p', '4K'],
-    features: ['subtitles', 'auto_update']
-  },
-  godrive: {
-    movieUrl: 'https://godriveplayer.com/player.php',
-    seriesUrl: 'https://godriveplayer.com/player.php',
-    quality: ['1080p'],
-    features: ['fast_servers', 'responsive']
-  },
-  autoembed: {
-    movieUrl: 'https://autoembed.cc/embed/movie',
-    seriesUrl: 'https://autoembed.cc/embed/tv',
-    quality: ['1080p', '4K'],
-    features: ['free_api']
-  },
-  tmdbembed: {
-    movieUrl: 'https://api.tmdbembed.org/embed/movie',
-    seriesUrl: 'https://api.tmdbembed.org/embed/tv',
-    quality: ['1080p', '4K'],
-    features: ['multi_source']
-  }
-};
-
-// Create the addon builder
+// Create the addon
 const builder = serveHTTP((addon) => {
   // Define the addon manifest
   addon.defineManifest({
     id: 'community.hqstreams.aggregator',
     version: '1.0.0',
     name: 'HQ Streams Aggregator',
-    description: 'Aggregates high-quality (1080p+) streaming links from multiple providers including VidSrc, GoDrivePlayer, AutoEmbed, and others',
+    description: 'Aggregates high-quality (1080p+) streaming links from multiple providers',
     logo: 'https://i.imgur.com/3XwJQ5l.png',
     background: 'https://i.imgur.com/8fGhJ9a.png',
+    type: 'stream',
+    catalogs: [],
     resources: ['stream'],
     types: ['movie', 'series'],
     idPrefixes: ['tt', 'tmdb:']
@@ -84,7 +58,11 @@ const builder = serveHTTP((addon) => {
             name: 'VidSrc',
             title: `VidSrc - 1080p`,
             url: vidsrcUrl,
-            description: `Source: VidSrc\nQuality: 1080p\nFeatures: subtitles, auto_update`
+            description: `Source: VidSrc\nQuality: 1080p\nFeatures: subtitles, auto_update`,
+            behaviorHints: {
+              notWebReady: false,
+              bingeGroup: 'VidSrc'
+            }
           });
         } catch (error) {
           console.error('VidSrc error:', error.message);
@@ -98,7 +76,11 @@ const builder = serveHTTP((addon) => {
             name: 'GoDrivePlayer',
             title: `GoDrivePlayer - 1080p`,
             url: godriveUrl,
-            description: `Source: GoDrivePlayer\nQuality: 1080p\nFeatures: fast_servers, responsive`
+            description: `Source: GoDrivePlayer\nQuality: 1080p\nFeatures: fast_servers, responsive`,
+            behaviorHints: {
+              notWebReady: false,
+              bingeGroup: 'GoDrivePlayer'
+            }
           });
         } catch (error) {
           console.error('GoDrivePlayer error:', error.message);
@@ -112,7 +94,11 @@ const builder = serveHTTP((addon) => {
             name: 'AutoEmbed',
             title: `AutoEmbed - 1080p`,
             url: autoembedUrl,
-            description: `Source: AutoEmbed\nQuality: 1080p\nFeatures: free_api`
+            description: `Source: AutoEmbed\nQuality: 1080p\nFeatures: free_api`,
+            behaviorHints: {
+              notWebReady: false,
+              bingeGroup: 'AutoEmbed'
+            }
           });
         } catch (error) {
           console.error('AutoEmbed error:', error.message);
@@ -126,7 +112,11 @@ const builder = serveHTTP((addon) => {
             name: 'TMDB-Embed',
             title: `TMDB-Embed - 4K`,
             url: tmdbembedUrl,
-            description: `Source: TMDB-Embed\nQuality: 4K\nFeatures: multi_source`
+            description: `Source: TMDB-Embed\nQuality: 4K\nFeatures: multi_source`,
+            behaviorHints: {
+              notWebReady: false,
+              bingeGroup: 'TMDB-Embed'
+            }
           });
         } catch (error) {
           console.error('TMDB-Embed error:', error.message);
@@ -140,12 +130,16 @@ const builder = serveHTTP((addon) => {
           const vidsrcUrl = type === 'movie' 
             ? `${providers.vidsrc.movieUrl}/${imdbId}`
             : `${providers.vidsrc.seriesUrl}/${imdbId}`;
-          
+        
           streams.push({
             name: 'VidSrc',
             title: `VidSrc - 1080p`,
             url: vidsrcUrl,
-            description: `Source: VidSrc\nQuality: 1080p\nFeatures: subtitles, auto_update`
+            description: `Source: VidSrc\nQuality: 1080p\nFeatures: subtitles, auto_update`,
+            behaviorHints: {
+              notWebReady: false,
+              bingeGroup: 'VidSrc'
+            }
           });
         } catch (error) {
           console.error('VidSrc error:', error.message);
@@ -155,13 +149,17 @@ const builder = serveHTTP((addon) => {
         try {
           const godriveUrl = type === 'movie'
             ? `${providers.godrive.movieUrl}?imdb=${imdbId}`
-            : `${providers.godrive.seriesUrl}?tmdb=${tmdbId || imdbId}&season=1&episode=1`;
-          
+            : `${providers.godrive.seriesUrl}?tmdb=${imdbId}&season=1&episode=1`;
+        
           streams.push({
             name: 'GoDrivePlayer',
             title: `GoDrivePlayer - 1080p`,
             url: godriveUrl,
-            description: `Source: GoDrivePlayer\nQuality: 1080p\nFeatures: fast_servers, responsive`
+            description: `Source: GoDrivePlayer\nQuality: 1080p\nFeatures: fast_servers, responsive`,
+            behaviorHints: {
+              notWebReady: false,
+              bingeGroup: 'GoDrivePlayer'
+            }
           });
         } catch (error) {
           console.error('GoDrivePlayer error:', error.message);
@@ -172,12 +170,16 @@ const builder = serveHTTP((addon) => {
           const autoembedUrl = type === 'movie'
             ? `${providers.autoembed.movieUrl}/${imdbId}`
             : `${providers.autoembed.seriesUrl}/${imdbId}`;
-          
+        
           streams.push({
             name: 'AutoEmbed',
             title: `AutoEmbed - 1080p`,
             url: autoembedUrl,
-            description: `Source: AutoEmbed\nQuality: 1080p\nFeatures: free_api`
+            description: `Source: AutoEmbed\nQuality: 1080p\nFeatures: free_api`,
+            behaviorHints: {
+              notWebReady: false,
+              bingeGroup: 'AutoEmbed'
+            }
           });
         } catch (error) {
           console.error('AutoEmbed error:', error.message);
@@ -186,32 +188,32 @@ const builder = serveHTTP((addon) => {
         // Fetch from TMDB-Embed-API
         try {
           const tmdbembedUrl = type === 'movie'
-            ? `${providers.tmdbembed.movieUrl}/${tmdbId || imdbId}`
+            ? `${providers.tmdbembed.movieUrl}/${imdbId || imdbId}`
             : `${providers.tmdbembed.seriesUrl}/${tmdbId || imdbId}`;
-          
+        
           streams.push({
             name: 'TMDB-Embed',
             title: `TMDB-Embed - 4K`,
             url: tmdbembedUrl,
-            description: `Source: TMDB-Embed\nQuality: 4K\nFeatures: multi_source`
+            description: `Source: TMDB-Embed\nQuality: 4K\nFeatures: multi_source`,
+            behaviorHints: {
+              notWebReady: false,
+              bingeGroup: 'TMDB-Embed'
+            }
           });
         } catch (error) {
           console.error('TMDB-Embed error:', error.message);
         }
       }
-      
-      console.log(`Returning ${streams.length} streams`);
-      return streams;
-      
-    } catch (error) {
-      console.error('General error:', error);
-      return [];
-    }
+    
+    console.log(`Returning ${streams.length} streams`);
+    return streams;
+    
+  } catch (error) {
+    console.error('General error:', error);
+    return [];
+  }
   });
 
-  // Start the addon
-  addon.run();
-});
-
-// Start the server
+// Start the addon
 builder.run();

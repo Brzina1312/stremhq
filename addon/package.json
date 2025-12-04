@@ -2,9 +2,12 @@
   "name": "stremhq-addon",
   "version": "1.0.0",
   "description": "HQ Streams Aggregator for Stremio",
-  "main": "index.js",
+  "main": "addon/index.js",
+  "scripts": {
+    "start": "node addon/index.js"
+  },
   "dependencies": {
-    "stremio-addon-sdk": "^1.6.3",
+    "stremio-addon-sdk": "^4.2.0",
     "axios": "^0.21.4"
   }
 }
