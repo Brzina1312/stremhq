@@ -1,11 +1,7 @@
-const express = require('express');
+// api/streams.js
 const axios = require('axios');
-const { URL } = require('url');
 
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-// Provider configurations
+// Provider configurations (same as before)
 const providers = {
   vidsrc: {
     movieUrl: 'https://vidsrc.to/embed/movie',
@@ -33,13 +29,7 @@ const providers = {
   }
 };
 
-// Quality filter function
-function isHighQuality(stream) {
-  const quality = stream.quality?.toLowerCase() || '';
-  return quality.includes('1080p') || quality.includes('4k') || quality.includes('2160p');
-}
-
-// Stream enrichment function
+// Helper functions (same as before)
 function enrichStreamInfo(stream, providerName, sourceUrl) {
   return {
     name: `${providerName} - ${stream.quality || 'HD'}`,
@@ -64,11 +54,25 @@ function enrichStreamInfo(stream, providerName, sourceUrl) {
   };
 }
 
-// Main stream handler
-app.get('/:type/:id/streams.json', async (req, res) => {
-  const { type, id } = req.params;
+// The main export for Vercel
+module.exports = async (req, res) => {
+  // Add CORS headers
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+
+  const { type, id } = req.query; // Vercel passes URL params as query strings after rewrite
   const streams = [];
   
+  if (!type || !id) {
+    return res.status(400).json({ error: 'Missing type or id parameter' });
+  }
+
   try {
     // Handle different ID formats
     let imdbId = id;
@@ -76,7 +80,7 @@ app.get('/:type/:id/streams.json', async (req, res) => {
     
     if (id.startsWith('tmdb:')) {
       tmdbId = id.replace('tmdb:', '');
-      // Convert TMDB to IMDb if needed (would need API call)
+      // In a real app, you'd need a way to convert TMDB to IMDb or use the TMDB ID directly
     }
     
     // Fetch from VidSrc
@@ -97,7 +101,7 @@ app.get('/:type/:id/streams.json', async (req, res) => {
     try {
       const godriveUrl = type === 'movie'
         ? `${providers.godrive.movieUrl}?imdb=${imdbId}`
-        : `${providers.godrive.seriesUrl}?tmdb=${tmdbId}&season=1&episode=1`;
+        : `${providers.godrive.seriesUrl}?tmdb=${tmdbId}&season=1&episode=1`; // This is a placeholder, you'd need real season/episode data
       
       streams.push(enrichStreamInfo({
         quality: '1080p',
@@ -141,24 +145,10 @@ app.get('/:type/:id/streams.json', async (req, res) => {
       stream.technicalDetails.resolution === '4K'
     );
     
-    res.json({ streams: hqStreams });
+    res.status(200).json({ streams: hqStreams });
     
   } catch (error) {
     console.error('General error:', error);
-    res.json({ streams: [] });
+    res.status(500).json({ streams: [] });
   }
-});
-
-// Serve manifest
-app.get('/manifest.json', (req, res) => {
-  res.sendFile(__dirname + '/manifest.json');
-});
-
-// Health check endpoint
-app.get('/health', (req, res) => {
-  res.json({ status: 'healthy', providers: Object.keys(providers) });
-});
-
-app.listen(PORT, () => {
-  console.log(`HQ Streams Aggregator running on port ${PORT}`);
-});
+};
