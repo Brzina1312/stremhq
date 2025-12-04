@@ -1,16 +1,8 @@
 {
   "rewrites": [
     {
-      "source": "/manifest.json",
-      "destination": "/public/manifest.json"
-    },
-    {
-      "source": "/:type/:id/streams.json",
-      "destination": "/api/streams"
-    },
-    {
-      "source": "/health",
-      "destination": "/api/health"
+      "source": "/(.*)",
+      "destination": "/index"
     }
   ]
 }
